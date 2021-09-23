@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CueController : MonoBehaviour
 {
     [SerializeField] Transform whiteBall;
-    [SerializeField] float radius = 0.2f;
-    private float yOffset = 0.1f;
 
     private Transform pivot;
 

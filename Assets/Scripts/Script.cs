@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Script : MonoBehaviour
@@ -36,6 +34,7 @@ public class Script : MonoBehaviour
         {
             rb.AddForce(transform.right * Time.deltaTime * hitStrength, ForceMode.Impulse);
         }
+
 
         if (Input.touchCount == 1)
         {
