@@ -20,7 +20,7 @@ public class CueController : MonoBehaviour
         ballVector = Input.mousePosition - ballVector;
         float angle = Mathf.Atan2(ballVector.y, ballVector.x) * Mathf.Rad2Deg;    
         pivot.position = whiteBall.position;
-        pivot.rotation = Quaternion.AngleAxis(-angle + 180, Vector3.up);
+        pivot.rotation = Quaternion.AngleAxis(-angle + 90, Vector3.up);
 
     }
 }

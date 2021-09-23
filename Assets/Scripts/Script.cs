@@ -18,7 +18,7 @@ public class Script : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //Vector3 heading = transform.position - Cue.transform.position;
         //float distance = heading.magnitude;
@@ -32,7 +32,7 @@ public class Script : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(transform.right * Time.deltaTime * hitStrength, ForceMode.Impulse);
+            rb.AddForce(transform.right * Time.deltaTime * hitStrength, ForceMode.VelocityChange);
         }
 
 
