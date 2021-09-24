@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private LineRenderer lr;
     [SerializeField] Transform aim;
     private RaycastHit hit;
+    [SerializeField] Slider hitStrengthIndicator;
 
     [SerializeField] bool areMoving = false;
 
@@ -26,13 +26,23 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !areMoving)
+        if (!areMoving)
         {
-            HitBall();
-        }
+            float distFromCamToBall = Mathf.Abs(transform.position.y - Camera.main.transform.position.y);
+            Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, distFromCamToBall);
+            mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+            distance = Vector3.Distance(mousePos, transform.position);
+            distance = Mathf.Clamp(distance, 0.1f, 1.0f);
+            hitStrengthIndicator.value = distance;
 
-        if(!areMoving)
-            RotateBall();
+            if (Input.GetMouseButtonDown(0) && !areMoving)
+            {
+                HitBall(distance);
+            }
+
+            if (!areMoving)
+                RotateBall();
+        }
     }
 
     private void FixedUpdate()
@@ -60,13 +70,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void HitBall()
+    void HitBall(float strengthMultiplier)
     {
-        distance = Vector3.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position);
-        distance = Mathf.Lerp(0.1f, 1, distance);
-        rb.AddForce(transform.right * Time.deltaTime * hitStrength, ForceMode.Impulse);
-        //lr.gameObject.SetActive(false);
         aim.gameObject.SetActive(false);
+        hitStrengthIndicator.gameObject.SetActive(false);
+        rb.AddForce(transform.right * Time.deltaTime * hitStrength * strengthMultiplier * 10, ForceMode.Impulse);
     }
 
     void RotateBall()
@@ -88,11 +96,17 @@ public class PlayerController : MonoBehaviour
                 continue;
 
             if (ballRb.velocity.magnitude > 0.1f)
-                areMoving = true;
+                areMoving = true;            
         }
-        if (!areMoving)
+        if (areMoving)
+        {
+            aim.gameObject.SetActive(false);
+            hitStrengthIndicator.gameObject.SetActive(false);
+        }
+        else
         {
             aim.gameObject.SetActive(true);
+            hitStrengthIndicator.gameObject.SetActive(true);
         }
     }
 }
