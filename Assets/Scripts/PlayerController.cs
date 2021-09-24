@@ -35,19 +35,25 @@ public class PlayerController : MonoBehaviour
             distance = Mathf.Clamp(distance, 0.1f, 1.0f);
             hitStrengthIndicator.value = distance;
 
-            if (Input.GetMouseButtonDown(0) && !areMoving)
+            if (Input.GetMouseButtonDown(0))
             {
                 HitBall(distance);
             }
 
-            if (!areMoving)
-                RotateBall();
+            RotateBall();
         }
     }
 
     private void FixedUpdate()
     {
-         ShowTrajectory();
+        if (!areMoving)
+        {
+            ShowTrajectory();
+        }
+        else
+        {
+            lr.positionCount = 0;
+        }
     }
 
     private void LateUpdate()
@@ -57,16 +63,21 @@ public class PlayerController : MonoBehaviour
 
     void ShowTrajectory()
     {
-        if (Physics.Raycast(transform.position, transform.right, out hit, 3) && !areMoving)
+        if (Physics.Raycast(transform.position, transform.right, out hit, 3))
         {
             lr.positionCount = 2;
             aim.position = hit.point;
             lr.SetPosition(0, transform.position);
             lr.SetPosition(1, aim.position);
-        }
-        else
-        {
-            lr.positionCount = 0;
+            if (hit.collider.gameObject.CompareTag("Ball"))
+            {
+                lr.positionCount += 1;
+                Ray ray = new Ray();
+                ray.origin = hit.collider.gameObject.transform.position;
+                ray.direction = hit.collider.gameObject.transform.position - hit.point;
+                Vector3 reboundTrajectory = ray.GetPoint(0.5f);
+                lr.SetPosition(2, reboundTrajectory);
+            }
         }
     }
 
