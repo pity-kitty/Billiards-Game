@@ -15,33 +15,52 @@ public class PlayerController : MonoBehaviour
 
     public float distance;
 
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         lr = GetComponent<LineRenderer>();
-
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!areMoving)
-        {
-            float distFromCamToBall = Mathf.Abs(transform.position.y - Camera.main.transform.position.y);
-            Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, distFromCamToBall);
-            mousePos = Camera.main.ScreenToWorldPoint(mousePos);
-            distance = Vector3.Distance(mousePos, transform.position);
-            distance = Mathf.Clamp(distance, 0.1f, 1.0f);
+        {            
+            CalculateDistance_Editor();
+
             hitStrengthIndicator.value = distance;
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonUp(0))
             {
                 HitBall(distance);
             }
 
             RotateBall();
         }
+    }
+
+    //Method to calculate the distance between mouse/finger position to apply it as strangth multiplier.
+    //Distance from camera to ball is needed to apply the position exactly on the same Y position.
+    //Then we transform mouse screen position to world point and clamp it to be between 0.1 and 1.
+    void CalculateDistance_Editor()
+    {
+        float distFromCamToBall = Mathf.Abs(transform.position.y - Camera.main.transform.position.y);
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, distFromCamToBall);
+        mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+        distance = Vector3.Distance(mousePos, transform.position);
+        distance = Mathf.Clamp(distance, 0.1f, 1.0f);
+    }
+
+    //This method do exatly the same as CalculateDistance_Editor, but its purpose to work in android build.
+    //But I ralize that editor method works fine on devise, so...
+    float CalculateDistance_Android()
+    {        
+        Touch touch = Input.GetTouch(0);
+        float distFromCamToBall = Mathf.Abs(transform.position.y - Camera.main.transform.position.y);
+        Vector3 fingerPos = new Vector3(touch.position.x, touch.position.y, distFromCamToBall);
+        fingerPos = Camera.main.ScreenToWorldPoint(fingerPos);
+        float dist = Vector3.Distance(fingerPos, transform.position);
+        dist = Mathf.Clamp(distance, 0.1f, 1.0f);
+        return dist;
     }
 
     private void FixedUpdate()
@@ -61,6 +80,8 @@ public class PlayerController : MonoBehaviour
         CheckMoving();
     }
 
+    //This method shows the trajectroy of a hit and the trajectory of rebound of hited ball.
+    //We're casting the ray to find the border or a ball to place there the aim sphere and get an end of trajectory.
     void ShowTrajectory()
     {
         if (Physics.Raycast(transform.position, transform.right, out hit, 3))
@@ -81,6 +102,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Apply a force to the ball in the forward direction of the scene and ball's local right direction. 
     void HitBall(float strengthMultiplier)
     {
         aim.gameObject.SetActive(false);
@@ -88,6 +110,7 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(transform.right * Time.deltaTime * hitStrength * strengthMultiplier * 10, ForceMode.Impulse);
     }
 
+    //Rotate the ball with mouse/finger.
     void RotateBall()
     {
         Vector3 ballVector = Camera.main.WorldToScreenPoint(transform.position);
@@ -96,6 +119,7 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(-angle + 90, Vector3.up);
     }
 
+    //This method checks if at least one ball is moving by checking its velocity (speed).
     void CheckMoving()
     {
         areMoving = false;

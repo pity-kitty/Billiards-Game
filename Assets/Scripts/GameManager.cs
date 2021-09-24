@@ -4,22 +4,18 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
+        //Restart the level on R key.
         if (Input.GetKeyDown(KeyCode.R))
             RestartLevel();
-        if (GameObject.FindGameObjectsWithTag("Ball").Length < 1)
+
+        //Check if all balls are destroyed to forcibly restart the game. 
+        if (GameObject.FindGameObjectsWithTag("Ball").Length < 2)
             StartCoroutine(RestartWhenNoBalls());
     }
 
-    void RestartLevel()
+    public void RestartLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
